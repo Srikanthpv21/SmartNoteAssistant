@@ -1,142 +1,117 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Note Assistant Mini-App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Style for Django form errors */
-        .form-error {
-            color: #e53e3e; /* red-600 */
-            font-size: 0.875rem; /* text-sm */
-            margin-top: 0.25rem; /* mt-1 */
-        }
-        /* Style for the new dropdown to match other inputs */
-        select[name="tone"] {
-            width: 100%;
-            border-radius: 0.375rem; /* rounded-md */
-            border-color: #D1D5DB; /* gray-300 */
-        }
-    </style>
-</head>
-<body class="bg-gray-100 min-h-screen py-12 px-4">
+{% extends 'assistant/assistant_base.html' %}
+{% load static %}
 
-    <div class="bg-white w-full max-w-6xl p-6 sm:p-8 rounded-xl shadow-lg mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-            Text Summarizer 
-        </h1>
-        <p class="text-gray-600 mb-6">
-            Paste your text below to generate a summary.
-        </p>
+{% block title %}Text Summarizer - Generate Notes{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        Text Summarizer 
+    </h1>
+    <p class="text-gray-600 mb-6">
+        Paste your text below to generate a summary.
+    </p>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-8">
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-8">
-            
-            <div class="w-full">
-                <form method="POST" action="" class="space-y-4">
-                    {% csrf_token %}
+        <div class="w-full">
+            <form method="POST" action="{% url 'summarize_text' %}" class="space-y-4">
+                {% csrf_token %}
 
-                    <div>
-                        <label for="{{ form.original_text.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                            {{ form.original_text.label }}
-                        </label>
-                        {{ form.original_text }}
-                        {% if form.original_text.errors %}
-                            <div class="form-error">
-                                {% for error in form.original_text.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.tone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                            {{ form.tone.label }}
-                        </label>
-                        {{ form.tone }}
-                        {% if form.tone.errors %}
-                            <div class="form-error">
-                                {% for error in form.tone.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <button type="submit" class="w-full sm:w-auto flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
-                        Summarize
-                    </button>
-                </form>
-            </div>
-            
-            <div class="w-full mt-6 lg:mt-0">
-                
-                {% if error_message %}
-                    <div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-                        <p class="font-bold">Error:</p>
-                        <p>{{ error_message }}</p>
-                    </div>
-                {% endif %}
-
-                {% if summary_text %}
-                    <div id="summary-container" class="pt-6 mt-6 border-t border-gray-200 lg:pt-0 lg:mt-0 lg:border-t-0">
-                        <h2 class="text-2xl font-semibold text-gray-900 mb-3">Generated Summary</h2>
-                        
-                        <div class="flex gap-6 text-sm text-gray-600 mb-4">
-                            <span><strong>Input Words:</strong> {{ input_word_count }}</span>
-                            <span><strong>Summary Words:</strong> {{ summary_word_count }}</span>
+                <div>
+                    <label for="{{ form.original_text.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        {{ form.original_text.label }}
+                    </label>
+                    {{ form.original_text }}
+                    {% if form.original_text.errors %}
+                        <div class="form-error">
+                            {% for error in form.original_text.errors %}
+                                {{ error }}
+                            {% endfor %}
                         </div>
-                        <div id="summary-output" class="p-4 bg-gray-50 rounded-md border border-gray-200 text-gray-800 whitespace-pre-wrap">
-                            {{ summary_text }}
-                        </div>
-                    </div>
-                {% endif %}
-                
-                {% if not summary_text and not error_message %}
-                <div class="h-full flex items-center justify-center p-4 bg-gray-50 rounded-md border border-gray-200">
-                    <p class="text-gray-500">The generated summary will appear here.</p>
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-            </div>
+
+                <div>
+                    <label for="{{ form.tone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        {{ form.tone.label }}
+                    </label>
+                    {{ form.tone }}
+                    {% if form.tone.errors %}
+                        <div class="form-error">
+                            {% for error in form.tone.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="w-full sm:w-auto flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                    Summarize
+                </button>
+            </form>
+        </div>
         
-        </div> <div class="mt-12 pt-8 border-t border-gray-200">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">
-                Summary History
-            </h2>
+        <div class="w-full mt-6 lg:mt-0">
             
-            {% if history_list %}
-                <div class="space-y-4">
-                    {% for item in history_list %}
-                        <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-medium text-gray-700">
-                                    {{ item.created_at|date:"M d, Y, P" }}
-                                </span>
-                                <a href="{% url 'download_summary' item.id %}" download 
-                                   class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                                    Download
-                                </a>
-                            </div>
-                            <p class="text-sm text-gray-600 mb-2">
-                                <strong>Tone:</strong> {{ item.get_tone_display }}
-                            </p>
-                            <blockquote class="text-sm text-gray-800 italic border-l-4 border-gray-300 pl-3 py-1">
-                                {{ item.summary_text|truncatewords:25 }}
-                            </blockquote>
-                        </div>
-                    {% endfor %}
+            {% if error_message %}
+                <div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    <p class="font-bold">Error:</p>
+                    <p>{{ error_message }}</p>
                 </div>
-            {% else %}
-                <p class="text-gray-500">You have no summary history yet.</p>
             {% endif %}
+
+            {% if summary_text %}
+                <div id="summary-container" class="pt-6 mt-6 border-t border-gray-200 lg:pt-0 lg:mt-0 lg:border-t-0">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-3">Generated Summary</h2>
+                    
+                    <div class="flex gap-6 text-sm text-gray-600 mb-4">
+                        <span><strong>Input Words:</strong> {{ input_word_count }}</span>
+                        <span><strong>Summary Words:</strong> {{ summary_word_count }}</span>
+                    </div>
+                    <div id="summary-output" class="p-4 bg-gray-50 rounded-md border border-gray-200 text-gray-800 whitespace-pre-wrap">
+                        {{ summary_text }}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if not summary_text and not error_message %}
+            <div class="h-full flex items-center justify-center p-4 bg-gray-50 rounded-md border border-gray-200">
+                <p class="text-gray-500">The generated summary will appear here.</p>
+            </div>
+            {% endif %}
+            
         </div>
-        </div>
-</body>
-</html>
+    
+    </div> 
+    
+    <div class="mt-12 pt-8 border-t border-gray-200">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+            Recent History 
+            <a href="{% url 'history_list' %}" class="text-base font-medium text-blue-600 hover:text-blue-800 ml-4">
+                View All &rarr;
+            </a>
+        </h2>
+        
+        {% if history_list %}
+            <div class="space-y-4">
+                {% for item in history_list %}
+                    <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">
+                                {{ item.created_at|date:"M d, Y, P" }} ({{ item.get_tone_display }})
+                            </span>
+                            <a href="{% url 'download_summary' item.id %}" download 
+                               class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                Download
+                            </a>
+                        </div>
+                        <blockquote class="text-sm text-gray-800 italic border-l-4 border-gray-300 pl-3 py-1">
+                            {{ item.summary_text|truncatewords:15 }}
+                        </blockquote>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500">You have no summary history yet.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

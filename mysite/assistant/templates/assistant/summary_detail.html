@@ -1,0 +1,35 @@
+{% extends 'assistant/assistant_base.html' %}
+{% load static %}
+
+{% block title %}Summary: {{ summary.created_at|date:"M d, Y, P" }}{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold text-gray-900 mb-4">
+        Summary Detail
+    </h1>
+
+    <div class="space-y-4">
+        <div class="p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <p class="text-sm text-gray-700">
+                <strong>Generated:</strong> {{ summary.created_at|date:"M d, Y, P" }}
+            </p>
+            <p class="text-sm text-gray-700">
+                <strong>Tone:</strong> {{ summary.get_tone_display }}
+            </p>
+        </div>
+
+        <h2 class="text-xl font-semibold text-gray-900 mt-6">Original Text</h2>
+        <div class="p-4 bg-gray-50 rounded-md border border-gray-200 whitespace-pre-wrap">
+            {{ summary.original_text }}
+        </div>
+
+        <h2 class="text-xl font-semibold text-gray-900 mt-6">Generated Summary</h2>
+        <div class="p-4 bg-gray-50 rounded-md border border-gray-200 whitespace-pre-wrap">
+            {{ summary.summary_text }}
+        </div>
+    </div>
+
+    <a href="{% url 'history_list' %}" class="mt-6 inline-block text-blue-600 hover:text-blue-800">
+        &larr; Back to History
+    </a>
+{% endblock content %}

@@ -6,31 +6,30 @@ from django.http import HttpResponse
 from .forms import SummaryForm  
 from .models import SummaryHistory
 
-# --- This is your main view, updated with all new features ---
+
 def summarize_text(request):
     """
     View to handle text summarization, word counts, saving, and history.
     """
-    #  Initialize new variables
+    # Initialize variables for the template context
     summary_text = ""
     error_message = None
     input_word_count = 0
     summary_word_count = 0
 
-    # Use SummaryForm (with tone) instead of SummarizerForm
+
+    # The form is instantiated here for both GET and POST requests.
     form = SummaryForm(request.POST or None)
 
     if request.method == 'POST':
         if form.is_valid():
             original_text = form.cleaned_data['original_text']
-            # Get 'tone' from the new form
             tone = form.cleaned_data['tone'] 
 
-            # 1. Calculate input word count
             input_word_count = len(original_text.split())
 
             try:
-                # --- Your existing, good API logic ---
+                # API Key check and configuration
                 api_key = os.environ.get('GEMINI_API_KEY')
                 if not api_key:
                     raise ValueError("GEMINI_API_KEY environment variable not set.")
@@ -39,11 +38,11 @@ def summarize_text(request):
 
                 system_instruction = "You are an expert in summarizing text. Your goal is to provide a concise and accurate summary of the given article, text, or document."
                 model = genai.GenerativeModel(
-                    'gemini-2.5-flash-lite-preview-09-2025', # Using latest flash model
+                    'models/gemini-2.5-flash-preview-09-2025',
                     system_instruction=system_instruction
                 )
                 
-                # 2. Construct the prompt using 'tone'
+                # Construct the prompt
                 user_query = f"Provide a {tone} summary for the following text:\n\n---\n{original_text}\n---"
 
                 generation_config = {
@@ -57,15 +56,12 @@ def summarize_text(request):
                     user_query,
                     generation_config=generation_config
                 )
-                # --- End of your API logic ---
 
                 try:
                     summary_text = response.text
-                    
-                    # 3. Calculate summary word count
                     summary_word_count = len(summary_text.split())
 
-                    # 4. Store in database
+                    # Store in database
                     SummaryHistory.objects.create(
                         original_text=original_text,
                         summary_text=summary_text,
@@ -81,10 +77,10 @@ def summarize_text(request):
             except Exception as e:
                 error_message = f"An unexpected error occurred: {e}"
 
-    #  5. Get summary history (for both GET and POST requests)
-    history_list = SummaryHistory.objects.all().order_by('-created_at')[:10] # Get latest 10
+    
+    history_list = SummaryHistory.objects.all().order_by('-created_at')[:3] 
 
-    # UPDATED: Pass all new data to the template
+
     context = {
         'form': form,
         'summary_text': summary_text,
@@ -93,22 +89,37 @@ def summarize_text(request):
         'summary_word_count': summary_word_count,
         'history_list': history_list,
     }
-    # Make sure this template path is correct for your project
     return render(request, 'assistant/summarize.html', context)
 
 
-# --- This is the new download view, moved to the correct level ---
 def download_summary(request, summary_id):
     """
     View to handle downloading a specific summary as a .txt file.
     """
-    # Get the specific summary object from the database
     summary = get_object_or_404(SummaryHistory, id=summary_id)
-    
-    # Create the response
     response = HttpResponse(summary.summary_text, content_type='text/plain')
-    
-    # Add a header to trigger download
     response['Content-Disposition'] = f'attachment; filename="summary_{summary_id}.txt"'
-    
     return response
+
+def history_list(request):
+    """
+    View to display the full history of generated summaries.
+    """
+    history_list = SummaryHistory.objects.all().order_by('-created_at')
+    
+    context = {
+        'history_list': history_list,
+    }
+    return render(request, 'assistant/history.html', context)
+
+def summary_detail(request, pk):
+    """
+    View to display a single saved summary and its original text.
+    """
+
+    summary = get_object_or_404(SummaryHistory, id=pk)
+
+    context = {
+        'summary': summary,
+    }
+    return render(request, 'assistant/summary_detail.html', context)

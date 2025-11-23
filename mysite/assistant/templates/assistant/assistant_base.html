@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Note Assistant{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'assistant/css/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-100 min-h-screen">
+    
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{% url 'summarize_text' %}" class="text-xl font-bold text-gray-900">SmartNote</a>
+            <div class="space-x-4">
+                <a href="{% url 'summarize_text' %}" class="text-gray-600 hover:text-blue-600">Summarizer</a>
+                <a href="{% url 'history_list' %}" class="text-gray-600 hover:text-blue-600">History</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="max-w-6xl mx-auto px-4 pt-12">
+        <img src="{% static 'assistant/img/banner.jpg' %}" 
+             alt="Smart Note Assistant Banner" 
+             class="w-full h-32 object-cover rounded-xl shadow-md mb-8">
+    </div>
+
+    <div class="px-4">
+        <div class="bg-white w-full max-w-6xl p-6 sm:p-8 rounded-xl shadow-lg mx-auto">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</body>
+</html>
